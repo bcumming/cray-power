@@ -1,0 +1,9 @@
+*.o
+*.a
+a.out
+
+test.ftn
+
+*.swp
+*.swn
+*.swo
