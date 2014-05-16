@@ -13,8 +13,8 @@ real (kind=8)   :: ssum, timespent
 real (kind=8)   :: energy_init, energy_final
 real (kind=8)   :: device_energy_init, device_energy_final
 
-n=100000000
-num_runs=100
+n=4000000
+num_runs=2500
 
 ! allocate working memory
 allocate(a(n),  b(n), c(n), stat=ierr)
@@ -26,8 +26,8 @@ call error(ierr /= 0, 'Problem allocating memory')
 
 ! initialize
 do i=1,n
-    a(i) = 1.;
-    b(i) = 1.;
+    a(i) = exp(i/(2.0*n));
+    b(i) = i/2.0;
     c(i) = 1.;
 enddo
 
@@ -63,6 +63,7 @@ call device_energy(device_energy_final)
 write (*,*) 'that took ', energy_final-energy_init, ' Joules'
 write (*,*) 'at rate ', (energy_final-energy_init)/timespent, ' Watts'
 write (*,*) 'that took ', timespent, ' seconds'
+write (*,*) ssum
 
 deallocate(a, b, c)
 !==============================================================================
