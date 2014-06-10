@@ -31,7 +31,6 @@ static double power() {
 static int num_nodes() {
     // find out the number of nodes
     char *ptr = std::getenv("SLURM_JOB_NUM_NODES");
-    std::cout << "SLURM " << ptr << std::endl;
     if(ptr) {
         return atoi(ptr);
     }
