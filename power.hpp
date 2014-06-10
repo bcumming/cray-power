@@ -1,5 +1,11 @@
 #include <fstream>
 #include <string>
+#include <vector>
+#include <algorithm>
+
+#include <mpi.h>
+
+#include <unistd.h>
 
 namespace power {
 
@@ -37,6 +43,44 @@ static int num_nodes() {
     else {
         return -1;
     }
+}
+
+// returns -1 if unable to determine number of nodes
+static int ranks_per_node() {
+    const int maxlen = 512;
+    char name[maxlen];
+
+    // check whether MPI has been initialized
+    int is_initialized = 0;
+    MPI_Initialized(&is_initialized);
+    if(!is_initialized) {
+        std::cerr << "ERROR : MPI not initialized" << std::endl;
+        return -1;
+    }
+
+    // get MPI information
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    // get hostname for this node
+    int result = gethostname(name, maxlen);
+
+    // error: return -1
+    if(result)
+        return -1;
+
+    // get integer index for this node, by stripping off first 2 characters
+    // on cray systems all compute nodes have hostname set as
+    // nid#######
+    int node = atoi(name+3);
+
+    // gather list of node identifiers
+    std::vector<int> node_ids(size);
+    MPI_Allgather(&node, 1, MPI_INT, &node_ids[0], 1, MPI_INT, MPI_COMM_WORLD);
+
+    // find first occurence of this ranks node
+    return std::count(node_ids.begin(), node_ids.end(), node);
 }
 
 } // namespace power

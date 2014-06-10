@@ -24,15 +24,11 @@ int main(int argc, char** argv) {
     std::vector<double> b(n);
     std::vector<double> c(n);
 
-    const int nodes = power::num_nodes();
-    // assert that the number of nodes is sane
-    assert(nodes<=size && nodes>0);
+    const int ranks_per_node = power::ranks_per_node();
 
-    const int ranks_per_node = size/nodes;
     if(!rank) {
         std::cout << size << " MPI ranks with "
-                  << omp_get_max_threads() << " threads on "
-                  << nodes << " nodes, that is "
+                  << omp_get_max_threads() << " threads with "
                   << ranks_per_node << " MPI tasks per node"
                   << std::endl;
     }
