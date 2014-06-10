@@ -16,7 +16,7 @@ test : fortran.exe cpp.exe
 fortran.exe : test.f90
 	ftn $(FFLAGS) test.f90 -o fortran.exe
 
-cpp.exe : test.cpp
+cpp.exe : test.cpp power.hpp
 	CC $(FFLAGS) test.cpp -o cpp.exe
 
 clean :

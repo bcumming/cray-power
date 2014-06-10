@@ -8,11 +8,12 @@ static double read_pm_file(const std::string &fname) {
     std::ifstream fid(fname.c_str());
 
     fid >> result;
+    //std::cout << fname << " :: " << result << std::endl;
     return result;
 }
 
 static double device_energy(void) {
-    return read_pm_file("/sys/cray/pm_counters/device_energy");
+    return read_pm_file("/sys/cray/pm_counters/accel_energy");
 }
 
 static double energy() {
