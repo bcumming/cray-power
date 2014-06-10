@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
+
 #include <cmath>
+#include <cstdlib>
+#include <cassert>
 
 #include <mpi.h>
 #include <omp.h>
@@ -21,8 +24,18 @@ int main(int argc, char** argv) {
     std::vector<double> b(n);
     std::vector<double> c(n);
 
-    if(!rank)
-        std::cout << size << " MPI ranks with " << omp_get_max_threads() << " threads" << std::endl;
+    const int nodes = power::num_nodes();
+    // assert that the number of nodes is sane
+    assert(nodes<=size && nodes>0);
+
+    const int ranks_per_node = size/nodes;
+    if(!rank) {
+        std::cout << size << " MPI ranks with "
+                  << omp_get_max_threads() << " threads on "
+                  << nodes << " nodes, that is "
+                  << ranks_per_node << " MPI tasks per node"
+                  << std::endl;
+    }
 
     for(int i=0; i<n; i++) {
         a[i] = std::exp(i/(2.0*n));
@@ -54,6 +67,10 @@ int main(int argc, char** argv) {
     timespent       += omp_get_wtime();
     node_energy     += power::energy();
     device_energy   += power::device_energy();
+
+    node_energy   /= double(ranks_per_node);
+    device_energy /= double(ranks_per_node);
+    //std::cout << "MPI " << rank << " :: " << node_energy << " | " << device_energy << std::endl;
 
     double total_node_energy = 0.;
     double total_device_energy = 0.;
