@@ -65,12 +65,9 @@ static int ranks_per_node() {
 
     // get hostname for this node
     int result = gethostname(name, maxlen);
+    if(result) return -1;
 
-    // error: return -1
-    if(result)
-        return -1;
-
-    // get integer index for this node, by stripping off first 2 characters
+    // get integer index for this node, by stripping off first 3 characters
     // on cray systems all compute nodes have hostname set as
     // nid#######
     int node = atoi(name+3);
@@ -79,7 +76,7 @@ static int ranks_per_node() {
     std::vector<int> node_ids(size);
     MPI_Allgather(&node, 1, MPI_INT, &node_ids[0], 1, MPI_INT, MPI_COMM_WORLD);
 
-    // find first occurence of this ranks node
+    // count the number of mpi ranks that are on the same node as this rank
     return std::count(node_ids.begin(), node_ids.end(), node);
 }
 
