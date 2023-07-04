@@ -33,7 +33,7 @@ enddo
 
 ! get energy counter at startup
 call energy(energy_init)
-call device_energy(device_energy_init)
+call device_energy(0, device_energy_init)
 
 timespent = -omp_get_wtime()
 
@@ -58,7 +58,7 @@ timespent = timespent + omp_get_wtime()
 
 ! get energy counter at end
 call energy(energy_final)
-call device_energy(device_energy_final)
+call device_energy(0, device_energy_final)
 
 write (*,*) 'that took ', energy_final-energy_init, ' Joules'
 write (*,*) 'at rate ', (energy_final-energy_init)/timespent, ' Watts'
@@ -70,11 +70,15 @@ deallocate(a, b, c)
 contains
 !==============================================================================
 
-subroutine device_energy(e)
+subroutine device_energy(i, e)
     implicit none
+    integer, intent(in) :: i
     real (kind=8), intent(out) :: e
+    character (120) :: filename
 
-    open(unit=50, file='/sys/cray/pm_counters/accel_energy' ,action='READ')
+    write(filename,'(A,I0,A)') '/sys/cray/pm_counters/accel', i, '_energy'
+    write(*,*) 'OPENING ', filename
+    open(unit=50, file=trim(filename), action='READ')
     read(50,*) e
     close(50)
 end
@@ -84,6 +88,24 @@ subroutine energy(e)
     real (kind=8), intent(out) :: e
 
     open(unit=50, file='/sys/cray/pm_counters/energy' ,action='READ')
+    read(50,*) e
+    close(50)
+end
+
+subroutine cpu_energy(e)
+    implicit none
+    real (kind=8), intent(out) :: e
+
+    open(unit=50, file='/sys/cray/pm_counters/cpu_energy' ,action='READ')
+    read(50,*) e
+    close(50)
+end
+
+subroutine memory_energy(e)
+    implicit none
+    real (kind=8), intent(out) :: e
+
+    open(unit=50, file='/sys/cray/pm_counters/cpu_energy' ,action='READ')
     read(50,*) e
     close(50)
 end
